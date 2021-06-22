@@ -1,4 +1,4 @@
-package org.dhernandez.appmockito.ejemplos.services;
+package org.dhernandez.appmockito.ejemplos;
 
 import org.dhernandez.appmockito.ejemplos.models.Examen;
 

@@ -38,7 +38,8 @@ public class ExamenServiceImpl implements  ExamenService{
         if (examenOptional.isPresent()){
         examen= examenOptional.orElseThrow(null);
         List<String> preguntas = preguntasRepository.findPreguntasPorExamenId(examen.getId());
-           examen .setPreguntas(preguntas);
+            preguntasRepository.findPreguntasPorExamenId(examen.getId());
+            examen .setPreguntas(preguntas);
         }
 
         return examen;
