@@ -6,9 +6,7 @@ import org.dhernandez.appmockito.ejemplos.repositorios.PreguntasRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.*;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
@@ -34,6 +32,10 @@ class ExamenServiceImplTest {
 
     @InjectMocks//crea la instancia del service e injecta los dos objetos de arriba via constructor
     ExamenServiceImpl service; // se inyecta el tipo de la clase no la interfaz
+
+    @Captor
+    ArgumentCaptor<Long> captor;
+
 
     @BeforeEach
     void setUp() {
@@ -144,5 +146,105 @@ class ExamenServiceImplTest {
         verify(preguntasRepository).guardarVarias(anyList());
 
 
+    }
+
+    @Test
+    void testManejoException() {
+        when(repositorio.findAll()).thenReturn(Datos.ID_NULL);
+        when(preguntasRepository.findPreguntasPorExamenId(isNull())).thenThrow(IllegalArgumentException.class);
+
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+
+            service.findExamenPorNombreConPreguntas("Matematicas");
+        });
+
+        assertEquals(IllegalArgumentException.class, exception.getClass());
+
+        verify(repositorio).findAll();
+        verify(preguntasRepository).findPreguntasPorExamenId(isNull());
+
+    }
+
+
+    @Test
+    void testArgumentMatches() {
+        when(repositorio.findAll()).thenReturn(Datos.EXAMENES);
+        when(preguntasRepository.findPreguntasPorExamenId(anyLong())).thenReturn(Datos.PREGUNTAS);
+        service.findExamenPorNombreConPreguntas("Matematicas");
+        verify(repositorio).findAll();
+//        verify(preguntasRepository).findPreguntasPorExamenId(ArgumentMatchers.argThat(arg->arg!=null && arg.equals(5L)));
+        verify(preguntasRepository).findPreguntasPorExamenId(ArgumentMatchers.argThat(arg->arg != null && arg>=5L));
+//        verify(preguntasRepository).findPreguntasPorExamenId(eq(5l));
+
+    }
+
+
+    @Test
+    void testArgumentMatches2() {
+        when(repositorio.findAll()).thenReturn(Datos.ID_NEGATIVOS);
+        when(preguntasRepository.findPreguntasPorExamenId(anyLong())).thenReturn(Datos.PREGUNTAS);
+        service.findExamenPorNombreConPreguntas("Matematicas");
+        verify(repositorio).findAll();
+        verify(preguntasRepository).findPreguntasPorExamenId(argThat(new MiArgsMatchers()));
+
+    }
+
+    @Test
+    void testArgumentMatches3() {
+        when(repositorio.findAll()).thenReturn(Datos.ID_NEGATIVOS);
+        when(preguntasRepository.findPreguntasPorExamenId(anyLong())).thenReturn(Datos.PREGUNTAS);
+        service.findExamenPorNombreConPreguntas("Matematicas");
+        verify(repositorio).findAll();
+        verify(preguntasRepository).findPreguntasPorExamenId(argThat(argument -> argument != null && argument > 0));
+
+    }
+
+
+    //clase inner
+    public static class MiArgsMatchers implements ArgumentMatcher<Long> {
+
+        private Long argument;
+
+        @Override
+        public boolean matches(Long argument) {
+            this.argument= argument;
+            return argument != null && argument > 0;
+        }
+
+        @Override
+        public String toString() {
+            return "es para un mensaje personalizado de error" +
+                    "que imprime mockito en caso de que falle el test " +
+                    argument +  " debe ser un entero positivo";
+        }
+
+    }
+
+
+    @Test
+    void testArgumentCaptor() {
+
+        when(repositorio.findAll()).thenReturn(Datos.EXAMENES);
+//        when(preguntasRepository.findPreguntasPorExamenId(anyLong())).thenReturn(Datos.PREGUNTAS);
+        service.findExamenPorNombreConPreguntas("Matematicas");
+
+//        ArgumentCaptor<Long> captor = ArgumentCaptor.forClass(Long.class);
+
+        verify(preguntasRepository).findPreguntasPorExamenId(captor.capture());
+
+
+        assertEquals(5L,captor.getValue());
+    }
+
+    @Test
+    void testDoThrow() {
+        Examen examen = Datos.EXAMEN;
+        examen.setPreguntas(Datos.PREGUNTAS);
+
+        //que pasa cuando el metodo es void y quiero manejar una excepcion, entnces:
+      doThrow(IllegalArgumentException.class).when(preguntasRepository).guardarVarias(anyList());
+    assertThrows(IllegalArgumentException.class, ()->{
+       service.guardar(examen);
+    });
     }
 }
