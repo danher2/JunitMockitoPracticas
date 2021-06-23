@@ -5,6 +5,7 @@ import org.dhernandez.test.springboot.app.models.Cuenta;
 import org.dhernandez.test.springboot.app.repositories.BancoRepository;
 import org.dhernandez.test.springboot.app.repositories.CuentaRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 
@@ -24,43 +25,47 @@ public class CuentaServiceImpl implements CuentaService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Cuenta findById(Long id) {
-        return cuentaRepository.findById(id);
+        return cuentaRepository.findById(id).orElseThrow(null);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public int revisarTotalTransferencias(Long bancoId) {
 
-        Banco banco = bancoRepository.findById(bancoId);
+        Banco banco = bancoRepository.findById(bancoId).orElseThrow(null);
         return banco.getTotalTransferencia();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public BigDecimal revisarSaldo(Long cuentaId) {
-        Cuenta cuenta = cuentaRepository.findById(cuentaId);
+        Cuenta cuenta = cuentaRepository.findById(cuentaId).orElseThrow(null);
 
         return cuenta.getSaldo();
     }
 
     @Override
+    @Transactional
     public void transferir(Long numCuentaOrigen, Long numCuentaDestino, BigDecimal monto,
                            Long bancoId) {
 
 
         //despues realiza ahora si la transferencia
-        Cuenta cuentaOrigen = cuentaRepository.findById(numCuentaOrigen);
+        Cuenta cuentaOrigen = cuentaRepository.findById(numCuentaOrigen).orElseThrow(null);
         cuentaOrigen.debito(monto);
-        cuentaRepository.update(cuentaOrigen);
+        cuentaRepository.save(cuentaOrigen);
 
-        Cuenta cuentaDestino = cuentaRepository.findById(numCuentaDestino);
+        Cuenta cuentaDestino = cuentaRepository.findById(numCuentaDestino).orElseThrow(null);
         cuentaDestino.credito(monto);
-        cuentaRepository.update(cuentaDestino);
+        cuentaRepository.save(cuentaDestino);
 
         //Lo primero que hace es actualizar el  numero de transferencias
-        Banco banco = bancoRepository.findById(bancoId);
+        Banco banco = bancoRepository.findById(bancoId).orElseThrow(null);
         int totalTransferencia = banco.getTotalTransferencia();
         banco.setTotalTransferencia(++totalTransferencia); // porque el incremento?
-        bancoRepository.update(banco);
+        bancoRepository.save(banco);
 
     }
 }

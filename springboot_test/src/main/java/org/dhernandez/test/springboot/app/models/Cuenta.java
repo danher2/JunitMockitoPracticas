@@ -2,14 +2,21 @@ package org.dhernandez.test.springboot.app.models;
 
 import org.dhernandez.test.springboot.app.exceptions.DineroInsuficienteExcception;
 
+import javax.persistence.*;
 import java.math.BigDecimal;
 import java.util.Objects;
 
+
+@Entity
+@Table(name="cuentas")
 public class Cuenta {
 
-
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String persona;
+
     private BigDecimal saldo;
 
 //constructor

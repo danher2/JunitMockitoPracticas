@@ -77,11 +77,11 @@ class SpringbootTestApplicationTests {
 		//verify verifica cuantas veces se invocaron los metodos de cada mock de cada repositorio
 		verify(cuentaRepository, times(3)).findById(1L);
 		verify(cuentaRepository, times(3)).findById(2L);
-		verify(cuentaRepository, times(2)).update(any(Cuenta.class));
+		verify(cuentaRepository, times(2)).save(any(Cuenta.class));
 
 		//cuantas veces se invoca el metodo findbyid en el metodo transferir
 		verify(bancoRepository,times(2)).findById(1L);
-		verify(bancoRepository).update(any(Banco.class));
+		verify(bancoRepository).save(any(Banco.class));
 
 
 		verify(cuentaRepository, times(6)).findById(anyLong());
@@ -121,11 +121,11 @@ class SpringbootTestApplicationTests {
 		//verify verifica cuantas veces se invocaron los metodos de cada mock de cada repositorio
 		verify(cuentaRepository, times(3)).findById(1L);
 		verify(cuentaRepository, times(2)).findById(2L);
-		verify(cuentaRepository, never()).update(any(Cuenta.class));
+		verify(cuentaRepository, never()).save(any(Cuenta.class));
 
 		//cuantas veces se invoca el metodo findbyid en el metodo transferir
 		verify(bancoRepository,times(1)).findById(1L);
-		verify(bancoRepository,never()).update(any(Banco.class));
+		verify(bancoRepository,never()).save(any(Banco.class));
 
 		verify(cuentaRepository, times(5)).findById(anyLong());
 		verify(cuentaRepository, never()).findAll();
