@@ -3,6 +3,7 @@ package org.dhernandez.test.springboot.app;
 
 import org.dhernandez.test.springboot.app.models.Cuenta;
 import org.dhernandez.test.springboot.app.repositories.CuentaRepository;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -14,6 +15,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@Tag("integracion_jpa")
 @DataJpaTest
 public class IntegracionJpaTest {
     @Autowired
@@ -100,14 +102,15 @@ public class IntegracionJpaTest {
     @Test
     void testDelete() {
 
+        //given --> esta es como la simulacion
         Cuenta cuenta = cuentaRepository.findById(2L).orElseThrow(null);
         assertEquals("Jhon", cuenta.getPersona());
 
         cuentaRepository.delete(cuenta);
 
-        assertThrows(NullPointerException.class, ()->{
+        assertThrows(NoSuchElementException.class, ()->{
 //            cuentaRepository.findByPersona("Jhon").orElseThrow(null);
-            cuentaRepository.findById(2L).orElseThrow(null);
+            cuentaRepository.findById(2L).get();
 
         });
         assertEquals(1,cuentaRepository.findAll().size());

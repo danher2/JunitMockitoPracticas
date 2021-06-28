@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 
 @Service
@@ -67,5 +68,23 @@ public class CuentaServiceImpl implements CuentaService {
         banco.setTotalTransferencia(++totalTransferencia); // porque el incremento?
         bancoRepository.save(banco);
 
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Cuenta> findAll() {
+        return cuentaRepository.findAll();
+    }
+
+    @Override
+    @Transactional
+    public Cuenta save(Cuenta cuenta) {
+        return cuentaRepository.save(cuenta);
+    }
+
+    @Override
+    @Transactional
+    public void deleteById(Long id) {
+        cuentaRepository.deleteById(id);
     }
 }
